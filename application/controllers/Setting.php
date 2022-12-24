@@ -34,7 +34,7 @@ class Setting extends CI_Controller
 		{
 			redirect('user/login');
 		}
-		else if($this->M_user->role != "admin")
+		else if($this->session->userdata('role') != "admin")
 		{
 			redirect('error_cuy');
 		}
@@ -50,7 +50,7 @@ class Setting extends CI_Controller
 		{
 			redirect('user/login');
 		}
-		else if($this->M_user->role != "admin")
+		else if($this->session->userdata('role') != "admin")
 		{
 			redirect('error_cuy');
 		}
@@ -77,7 +77,7 @@ class Setting extends CI_Controller
 		{
 			redirect('user/login');
 		}
-		else if($this->M_user->role != "admin")
+		else if($this->session->userdata('role') != "admin")
 		{
 			redirect('error_cuy');
 		}
@@ -125,7 +125,7 @@ class Setting extends CI_Controller
 		{
 			redirect('user/login');
 		}
-		else if($this->M_user->role != "admin")
+		else if($this->session->userdata('role') != "admin")
 		{
 			redirect('error_cuy');
 		}
@@ -159,7 +159,7 @@ class Setting extends CI_Controller
 		{
 			redirect('user/login');
 		}
-		else if($this->M_user->role != "admin")
+		else if($this->session->userdata('role') != "admin")
 		{
 			redirect('error_cuy');
 		}
@@ -190,7 +190,7 @@ class Setting extends CI_Controller
 		{
 			redirect('user/login');
 		}
-		else if($this->M_user->role != "admin")
+		else if($this->session->userdata('role') != "admin")
 		{
 			redirect('error_cuy');
 		}
@@ -207,7 +207,7 @@ class Setting extends CI_Controller
 		{
 			redirect('user/login');
 		}
-		else if($this->M_user->role != "admin")
+		else if($this->session->userdata('role') != "admin")
 		{
 			redirect('error_cuy');
 		}
@@ -223,7 +223,7 @@ class Setting extends CI_Controller
 		{
 			redirect('user/login');
 		}
-		else if($this->M_user->role != "admin")
+		else if($this->session->userdata('role') != "admin")
 		{
 			redirect('error_cuy');
 		}
