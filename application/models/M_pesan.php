@@ -15,7 +15,7 @@ class M_pesan extends CI_Model
 
     public function getAll()
 	{
-		return $this->db->query("SELECT s.jenis, s.judul, p.nama, psn.no_hp, psn.status, psn.updated_at FROM surat AS s, penerima AS p, pesan AS psn
+		return $this->db->query("SELECT psn.id, s.jenis, s.judul, p.nama, psn.no_hp, psn.status, psn.updated_at FROM surat AS s, penerima AS p, pesan AS psn
         WHERE s.id = psn.surat_id AND p.id = psn.penerima_id ORDER BY psn.updated_at DESC")->result();
 	}
 
@@ -166,6 +166,42 @@ class M_pesan extends CI_Model
         $tanggal = date('Y-m-d');
         $row = $this->db->query("SELECT status FROM testing WHERE tanggal = '$tanggal'")->row();
         return $row->status;
+    }
+
+    public function kirimUlang()
+    {
+        $post = $this->input->post();
+        $id = $post['id'];
+        $timestamp = date('Y-m-d H:i:s');
+        $this->db->query("UPDATE pesan SET status = 'pending', updated_at = '$timestamp' WHERE id=$id");
+        return $this->db->affected_rows();
+    }
+
+    public function filter($status,$surat,$mulai,$akhir)
+    {
+        if($surat != 'false')
+        {
+            $surat = str_replace('%20', ' ', $surat);
+        }
+        $qStatus = ($status == 'false') ? false : "AND psn.status = '$status' ";
+        $qSurat = ($surat == 'false') ? false : "AND s.jenis = '$surat' ";
+        $mulai .= ' 00.00.00.000';
+        $akhir .= ' 23:59:59.999';
+        $qTanggal = "AND psn.updated_at BETWEEN '$mulai' AND '$akhir' ";
+        $tambahan = "";
+        if($qStatus != false)
+        {
+            $tambahan .= $qStatus;
+        }
+        if($qSurat != false)
+        {
+            $tambahan .= $qSurat;
+        }        
+        $tambahan .= $qTanggal;        
+        $query = $this->db->query("SELECT psn.id, s.jenis, s.judul, p.nama, psn.no_hp, psn.status, psn.updated_at FROM surat AS s, penerima AS p, pesan AS psn WHERE s.id = psn.surat_id AND p.id = psn.penerima_id $tambahan ORDER BY psn.updated_at DESC");
+        // return $this->db->last_query();
+        return $query->result();
+        
     }
 }
 

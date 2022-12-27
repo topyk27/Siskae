@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.0.3] - 2022-12-27
+### Added
+- Kirim ulang pesan yang gagal
+- Filter pesan
+- Filter surat
+
 ## [0.0.2] - 2022-12-27
 ### Changed
 - Cara penggunaan

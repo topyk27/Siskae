@@ -102,5 +102,10 @@ class Surat extends CI_Controller
 			echo "0";
 		}
 	}
+
+    public function filter($kode,$surat,$mulai,$akhir)
+    {
+        echo json_encode($this->M_surat->filter($kode,$surat,$mulai,$akhir));
+    }
 }
  ?>

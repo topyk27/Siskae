@@ -6,6 +6,7 @@
   <?php 
 		$this->config->load('siskae_config',TRUE);
 		$app = $this->config->item('app_name','siskae_config');
+    $mulai = $this->config->item('mulai','siskae_config');
 	?>
   <title><?php echo $app; ?> | Surat</title>
   <!-- Tell the browser to be responsive to screen width -->
@@ -66,6 +67,32 @@
           <div class="col-md-12">              
               <div class="card card-primary">
                 <div class="card-body">
+                  <form class="form-inline mb-3">
+                    <div class="form-check form-check-inline">
+                      <label for="kode" class="form-check-label mr-2">Kode Surat</label>
+                      <select name="selectKode" id="selectKode" class="form-inline"></select>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input type="checkbox" class="form-check-input" id="cbSK">
+                      <label for="cbSK" class="form-check-label">Surat Keputusan</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input type="checkbox" class="form-check-input" id="cbST">
+                      <label for="cbST" class="form-check-label">Surat Tugas</label>
+                    </div>
+                    <div class="form-check form-check-inline mt-2 mb-2">
+                      <label for="tMulai" class="form-check-label mr-2">Tanggal Mulai :</label>
+                      <input type="date" class="form-check-input" id="tMulai" value="<?php echo $mulai; ?>">
+                    </div>
+                    <div class="form-check form-check-inline mt-2 mb-2">
+                      <label for="tAkhir" class="form-check-label mr-2">Tanggal Akhir :</label>
+                      <input type="date" class="form-check-input" id="tAkhir" value="<?php echo date('Y-m-d'); ?>">
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input type="button" class="btn btn-success mr-2 mt-2 mb-2" value="Filter" id="bFilter">
+                      <input type="button" class="btn btn-danger mr-2 mt-2 mb-2" value="Reset" id="bReset">
+                    </div>
+                  </form>
                   <table id="dt_surat" class="table table-bordered table-hover">
                     <thead>
                       <tr>
@@ -247,6 +274,113 @@
       $("#hapusModal").find('.modal-body').html('<p>Apakah anda ingin menghapus surat '+judul+'? Data ini tidak bisa dipulihkan kembali.');
       $("#hapusModal").find('#deleteButton').attr("onclick","hapusData("+id+")");
     }
+
+    const selectKode = document.getElementById('selectKode');
+    const cbSK = document.getElementById("cbSK");
+    const cbST = document.getElementById("cbST");
+    const tMulai = document.getElementById("tMulai");
+    const tAkhir = document.getElementById("tAkhir");
+    const bFilter = document.getElementById("bFilter");
+    const bReset = document.getElementById("bReset");
+    let kodes = [];
+    const RENDER_KODE = "renderKode";
+
+    const getKode = () =>
+    {
+      $.ajax({
+        url: base_url+"kode/getAll",
+        type: "GET",
+        dataType: "JSON",
+        success: function(data)
+        {
+          if(data !== null)
+          {
+            for(const kode of data)
+            {
+              kodes.push(kode);
+            }
+          }
+          document.dispatchEvent(new Event(RENDER_KODE));
+        }
+      });
+    }
+
+    document.addEventListener(RENDER_KODE,function(){
+      const opt = document.createElement('option');
+      opt.innerText = "Pilih Kode Surat";
+      opt.setAttribute('value','false');
+      selectKode.append(opt);
+      for(const kodeItem of kodes)
+      {
+        const opt = document.createElement('option');
+        opt.setAttribute('value',kodeItem.kode);
+        opt.innerText = kodeItem.kode;
+        selectKode.append(opt);
+      }
+    });
+
+    getKode();
+    
+    cbSK.addEventListener('change', (event) => {
+      if(event.currentTarget.checked)
+      {
+        cbST.checked = false;        
+      }
+    });
+
+    cbST.addEventListener('change', (event) => {
+      if(event.currentTarget.checked)
+      {
+        cbSK.checked = false;        
+      }
+    });
+
+    bFilter.addEventListener('click', (event) => {
+      const x = new Date(tMulai.value);
+      const y = new Date(tAkhir.value);
+      if(x>y)
+      {
+        $("#respon").html("<div class='alert alert-success' role='alert' id='responMsg'>Tanggal awal tidak boleh lebih dari tanggal akhir.</div>")
+        $("#responMsg").hide().fadeIn(200).delay(2000).fadeOut(1000, function(){$(this).remove();});
+      }
+      else
+      {        
+        let filterKode = selectKode.value;
+        let filterSurat = false;        
+
+        if(cbSK.checked)
+        {
+          filterSurat = "Surat Keputusan";
+        }
+        else if(cbST.checked)
+        {
+          filterSurat = "Surat Tugas";
+        }
+        let data = {
+          kode: filterKode,
+          surat: filterSurat,
+          mulai: tMulai.value,
+          akhir: tAkhir.value
+        }
+        let out = [];
+        for(let key in data)
+        {          
+          out.push(encodeURIComponent(data[key]));
+        }
+        let param = out.join('/');
+        // console.log(base_url+'surat/filter/'+param);
+        dt_surat.ajax.url(base_url+'surat/filter/'+param).load();
+      }
+    });
+
+    bReset.addEventListener('click', (event) => {      
+      cbSK.checked = false;
+      cbST.checked = false;
+      selectKode.value = 'false';
+      tMulai.valueAsDate = new Date();
+      tAkhir.valueAsDate = new Date();
+      dt_surat.ajax.url(base_url+'surat/getAll').load();
+    });
         
     <?php
       if($this->session->userdata('success')) :

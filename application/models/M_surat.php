@@ -227,6 +227,38 @@ class M_surat extends CI_Model
         return preg_replace($ptn, $rpltxt, $nomor_hp);
     }
 
+    public function filter($kode,$surat,$mulai,$akhir)
+    {
+        $qKode = ($kode == 'false') ? false : "kode = '$kode' ";
+        if($surat != 'false')
+        {
+            $surat = str_replace('%20', ' ', $surat);
+        }
+        $qSurat = ($surat == 'false') ? false : "AND jenis = '$surat' ";
+        // $mulai .= ' 00.00.00.000';
+        // $akhir .= ' 23:59:59.999';
+        $qTanggal = "AND tanggal BETWEEN '$mulai' AND '$akhir' ";
+        $tambahan = "";
+        if($qKode != false)
+        {
+            $tambahan .= $qKode;
+        }
+        if($qSurat != false)
+        {
+            $tambahan .= $qSurat;
+        }
+        if(!$qKode && !$qSurat)
+        {
+            $tambahan .= "tanggal BETWEEN '$mulai' AND '$akhir'";
+        }
+        else
+        {
+            $tambahan .= $qTanggal;
+        }
+        $query = $this->db->query("SELECT * FROM surat WHERE $tambahan");
+        return $query->result();
+    }
+
 }
 
 ?>

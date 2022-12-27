@@ -87,6 +87,16 @@ class Pesan extends CI_Controller
         $data = $this->M_pesan->getPenerimaBySurat($id);
         echo json_encode($data);
     }
+
+    public function kirimUlang()
+    {
+        echo json_encode($this->M_pesan->kirimUlang());
+    }
+
+    public function filter($status,$surat,$mulai,$akhir)
+    {
+        echo json_encode($this->M_pesan->filter($status,$surat,$mulai,$akhir));
+    }
 }
 
 ?>
