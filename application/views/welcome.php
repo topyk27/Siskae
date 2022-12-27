@@ -73,8 +73,11 @@
 										<li class="list-group-item"><img src="<?php echo base_url('asset/img/img-4.png'); ?>" class="img-fluid"></li>
 										<li class="list-group-item">Setelah berhasil login, silahkan tutup tab WhatsApp Web</li>
 										<li class="list-group-item">Buka kembali ekstensi <a href="chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/options.html#nav=dashboard" target="_blank">Tampermonkey</a> dan enable script SISKAE</li>
-										<li class="list-group-item"><img src="<?php echo base_url('asset/img/img-5.png'); ?>" class="img-fluid"></li>
-										<li class="list-group-item">Tutup semua tab yang terbuka kecuali aplikasi ini. Kemudian pilih menu <a href="<?php echo base_url('pesan'); ?>">Pesan </a><i class="fas fa-arrow-right"></i> <a href="<?php echo base_url('pesan'); ?>">Kirim</a> untuk mengambil data pesan yang akan dikirimkan</li>
+										<li class="list-group-item"><img src="<?php echo base_url('asset/img/img-5.png'); ?>" class="img-fluid"></li>										
+										<li class="list-group-item">Isi terlebih dahulu semua data pegawai yang akan dikirimkan surat pada menu <a href="<?php echo base_url('penerima'); ?>">Penerima</a>.</li>
+										<li class="list-group-item">Isikan juga data kode surat pada menu <a href="<?php echo base_url('kode'); ?>">Kode Surat</a>.</li>
+										<li class="list-group-item">Selanjutnya masukkan data surat yang akan dikirimkan pada menu <a href="<?php echo base_url('surat'); ?>">Surat</a><i class="fas fa-arrow-right"></i><a href="<?php echo base_url('surat/tambah'); ?>">Tambah</a></li>
+										<li class="list-group-item">Tutup semua tab yang terbuka kecuali aplikasi ini. Kemudian pilih menu <a href="<?php echo base_url('pesan'); ?>">Pesan </a><i class="fas fa-arrow-right"></i> <a href="<?php echo base_url('pesan/kirim'); ?>">Kirim</a> untuk mengambil data pesan yang akan dikirimkan.</li>
 										<li class="list-group-item">Setelah selesai mengambil data pesan, aplikasi akan otomatis mengirimkan pesan ke nomor whatsapp yang sudah tersimpan di database</li>
 										<li class="list-group-item">Mohon diperhatikan terlebih dahulu apakah aplikasi berhasil mengirimkan pesan atau tidak. Apabila gagal, silahkan hubungi administrator.</li>
 										<li class="list-group-item">Apabila muncul pesan seperti di bawah ini, silahkan klik tombol always allow</li>

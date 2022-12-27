@@ -71,6 +71,7 @@ class M_surat extends CI_Model
     public function getAll()
 	{
 		$this->db->from($this->table);
+        $this->db->order_by("tanggal", "DESC");
 		return $this->db->get()->result();		
 	}
 

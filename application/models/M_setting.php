@@ -75,8 +75,13 @@ class M_setting extends CI_Model
 		$post = $this->input->post();
 		$kode_surat_satker = $post['kode_surat_satker'];
 		$this->db->query("UPDATE setting set kode_surat_satker='$kode_surat_satker'");
-		$data['respon'] = $this->db->affected_rows();
-		$data['kode_surat_satker'] = $kode_surat_satker;
+		$efek = $this->db->affected_rows();
+		if($efek > 0)
+		{
+			$this->session->set_userdata("kode_surat_satker",$kode_surat_satker);
+		}
+		$data['respon'] = $efek;
+		$data['kode_surat_satker'] = $kode_surat_satker;		
 		return $data;
 	}
 

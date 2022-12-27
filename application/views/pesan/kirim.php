@@ -10,12 +10,7 @@
   <title><?php echo $app; ?> | Pesan | Kirim</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <?php $this->load->view("_partials/css.php") ?>
-  <!-- datatables -->
-  <link rel="stylesheet" type="text/css" href="<?php echo base_url('asset/plugin/datatables-bs4/css/dataTables.bootstrap4.min.css') ?>">
-  <link rel="stylesheet" type="text/css" href="<?php echo base_url('asset/plugin/datatables-responsive/css/responsive.bootstrap4.min.css') ?>">
-  <!-- lightbox -->
-  <link rel="stylesheet" type="text/css" href="<?php echo base_url('asset/plugin/lightbox2/dist/css/lightbox.min.css'); ?>">
+  <?php $this->load->view("_partials/css.php"); ?>  
 </head>
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
@@ -90,6 +85,8 @@
         $("#sidebar_pesan").addClass("active");
         let pesanId;
         let init = 0;
+        let initial = 0;
+        let currentPesan = 0;
         const skrg = () =>
         {
             let d = new Date();
@@ -103,17 +100,22 @@
             let sukses;
             let current = new Date();
             let nmr;
+            init = 0;
             $.ajax({
                 url: base_url+"pesan/getPesan",
                 dataType: "JSON",
                 success: function(datas)
                 {
+                    let data = datas[0];
+                    let timeline = $("div.timeline");
+                    $("div.clock").remove();
+                    let divPesan = document.createElement('div');
+                    divPesan.id = "pesan"+currentPesan;
+                    divPesan.innerHTML = "<i class='fas fa-comments bg-yellow'></i><div class='timeline-item'><span class='time'><i class='fas fa-clock'></i></span><h3 class='timeline-header'><a href='#'>Mengirim pesan kepada </a></h3><div class='timeline-body'></div><div class='timeline-footer'><a class='btn btn-primary btn-sm'>Mohon jangan ditutup tab yang baru terbuka</a></div></div>";
+                    timeline.append(divPesan,"<div class='clock'><i class='fas fa-clock bg-gray'></i></div>");
+                    // timeline.append("<div><i class='fas fa-comments bg-yellow'></i><div class='timeline-item'><span class='time'><i class='fas fa-clock'></i></span><h3 class='timeline-header'><a href='#'>Mengirim pesan kepada </a></h3><div class='timeline-body'></div><div class='timeline-footer'><a class='btn btn-primary btn-sm'>Mohon jangan ditutup tab yang baru terbuka</a></div></div></div><div class='clock'><i class='fas fa-clock bg-gray'></i></div>");                        
                     if(datas.length > 0)
                     {
-                        let data = datas[0];
-                        let timeline = $("div.timeline");
-                        $("div.clock").remove();
-                        timeline.append("<div><i class='fas fa-comments bg-yellow'></i><div class='timeline-item'><span class='time'><i class='fas fa-clock'></i></span><h3 class='timeline-header'><a href='#'>Mengirim pesan kepada </a></h3><div class='timeline-body'></div><div class='timeline-footer'><a class='btn btn-primary btn-sm'>Mohon jangan ditutup tab yang baru terbuka</a></div></div></div><div class='clock'><i class='fas fa-clock bg-gray'></i></div>");                        
                         const url = "https://web.whatsapp.com/send?phone=";
                         const nomor = data.no_hp
                         const isi_pesan = data.pesan.replace(/ /g,"+");
@@ -124,7 +126,7 @@
                         {
                             $("span.time").last().append(current.toLocaleTimeString());
                             $("h3.timeline-header").last().append(nomor);
-                            $("div.timeline-body").last().append(data.pesan);
+                            $("div.timeline-body").last().append(data.pesan.replaceAll('%0a', '<br>'));
                             setTimeout(function(){
                                 updateStatusKirim(pesanId);
                                 window.open(url+nomor+"&text="+isi_pesan);
@@ -161,7 +163,7 @@
                     console.log(err.responseText);
                     setTimeout(function(){
                         getPesan();
-                    },15000);
+                    },20000);
                 },
                 complete: function()
                 {
@@ -170,7 +172,7 @@
                         setTimeout(function(){
                             cekTerkirim(pesanId,nmr);
                         },10000);
-                    }
+                    }                    
                 }
             });
         }
@@ -233,7 +235,7 @@
                     {
                         setTimeout(function(){
                             getPesan();
-                        },7000);
+                        },20000);
                     }
                     else if(data.status=="gagal")
                     {
@@ -247,6 +249,7 @@
                     else
                     {
                         setTimeout(function(){
+                            console.log('ini adalah init => '+init);
                             if(init>12)
                             {
                                 setStatusGagal(id);
@@ -306,8 +309,151 @@
                 }
             });
         }
+
+        const testing = () =>
+        {
+            $.ajax({
+                url: base_url+'pesan/testing',
+                dataType: 'JSON',
+                success: function(data)
+                {
+                    let d = data[0];
+                    let hari_ini = new Date();
+                    let pesan = "SISKAE " + d.nama_pa + " " + hari_ini;
+                    let sukses = false;
+                    let no = d.no_testing;
+                    let stts = 'entahlah';
+                    $.ajax({
+                        type: 'post',
+                        url: base_url+'pesan/insertTesting',
+                        data: {pesan: pesan,no:no},
+                        dataType: 'json',
+                        beforeSend: function()
+                        {
+                            $('.loader2').show();
+                        },
+                        success: function(data)
+                        {                            
+                            if(data.status=="ok")
+                            {
+                                sukses = true;
+                            }
+                            else if(data.status=="error")
+                            {
+                                sukses=false;
+                            }
+                            else if(data.status=="menunggu")
+                            {
+                                let url = "https://web.whatsapp.com/send?phone=";
+                                let id = data.id;
+                                stts = 'menunggu';
+                                updateTesting(id);
+                                window.open(url+no+"&text="+pesan);
+                            }
+                        },
+                        error: function(err)
+                        {
+                            console.log(err.responseText);
+                            alert('ada yang error');
+                        },
+                        complete: function()
+                        {
+                            if(stts != 'menunggu')
+                            {
+                                if(sukses)
+                                {
+                                    setTimeout(() => {
+                                        $('.loader2').hide();
+                                        getPesan(); 
+                                    }, 20000);
+                                }
+                                else if(!sukses && initial==0)
+                                {
+                                    initial++;
+                                    setTimeout(() => {
+                                       $.ajax({
+                                        type: 'get',
+                                        url: base_url+'pesan/testingLagi',
+                                        error: function(err)
+                                        {
+                                            console.log(err.responseText);
+                                            alert('ada yang bermasalah kakak');
+                                        },
+                                        complete: function()
+                                        {
+                                            testing();
+                                        }
+                                       }); 
+                                    }, 3000);
+                                }
+                                else if(!sukses && initial>0)
+                                {
+                                    $('.loader2').hide();
+                                    $(document).Toasts('create', {
+                                        class: 'bg-danger',
+                                        title: 'Gagal kirim pesan',
+                                        subtitle: 'Error',
+                                        body: 'Pastikan wa web terbuka sepenuhnya, atau dimatikan terlebih dahulu extensi tampermonkey, apabila masih muncul error cek script update pada extensi tampermonkey'
+                                    });
+                                }
+                            }
+                        }
+                    });                    
+                }
+            });
+        }
+
+        const updateTesting = (id) =>
+        {
+            $.ajax({
+                type: 'POST',
+                url: base_url+'pesan/cekTesting',
+                data: {id:id},
+                dataType: "TEXT",
+                success: function(data)
+                {
+                    if(data=="ok")
+                    {
+                        setTimeout(() => {
+                            $('.loader2').hide();
+                            getPesan();
+                        }, 20000);
+                    }
+                    else if(data=="error")
+                    {
+                        $('.loader2').hide();
+                        $(document).Toasts('create', {
+                            class: 'bg-danger',
+                            title: 'Gagal kirim pesan',
+                            subtitle: 'Error',
+                            body: 'Pastikan wa web terbuka sepenuhnya, atau dimatikan terlebih dahulu extensi tampermonkey'
+                        });
+                    }
+                    else
+                    {
+                        setTimeout(() => {
+                            updateTesting(id);
+                        }, 5000);
+                    }
+                },
+                error: function(err)
+                {
+                    $(document).Toasts('create', {
+                        class: 'bg-danger',
+                        title: 'Gagal ambil status pesan',
+                        subtitle: 'Error',
+                        body: 'Pastikan tab whatsapp terbuka dan pesan berhasil dikirim.'
+                    });
+                    console.log(err.responseText);
+                    setTimeout(() => {
+                        updateTesting(id);
+                    }, 5000);
+                }
+            });
+        }
         
-        getPesan();
+        // getPesan();
+        testing();
     });
 </script>
 </body>

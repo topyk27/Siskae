@@ -35,28 +35,68 @@ class M_pesan extends CI_Model
     }
 
     public function testing()
-    {
-        $tanggal = date('Y-m-d');
-        return $this->db->query("SELECT * FROM testing WHERE tanggal = $tanggal ")->result();
+    {        
+        return $this->db->query("SELECT nama_pa, no_testing FROM setting")->result();
     }
 
     public function insertTesting()
     {
         $tanggal = date('Y-m-d');
-        $this->db->query("INSERT INTO testing (tanggal,status) VALUES ($tanggal,'proses')");
-        return $this->db->affected_rows();
+        $respon = [];
+        $udah = $this->db->query("SELECT id, status FROM testing WHERE tanggal ='$tanggal' ");
+        if($udah->num_rows() > 0)
+        {
+            foreach($udah->result() as $row)
+            {
+                if($row->status=="ok")
+                {
+                    $respon['status'] = "ok";
+                    $respon['success'] = 1;
+                }
+                else if($row->status=="error")
+                {
+                    $respon['status'] = "error";
+                    $respon['success'] = 0;
+                }
+                else if($row->status=="menunggu")
+                {
+                    $respon['status'] = "menunggu";
+                    $respon['success'] = 2;
+                }
+                $respon['id'] = $row->id;
+
+            }
+        }
+        else
+        {
+            $this->db->query("INSERT INTO testing(status,tanggal) VALUES ('menunggu','$tanggal')");
+            $respon['success'] = ($this->db->affected_rows() != 1) ? 0 : 1;
+            $respon['status'] = "menunggu";
+            $respon['id'] = $this->db->insert_id();            
+        }
+        return $respon;
     }
 
-    public function cekStatusTesting()
+    public function testingLagi()
     {
-        $tanggal = date('Y-m-d');
-        return $this->db->query("SELECT status FROM testing WHERE tanggal = $tanggal")->result();
+        $tanggal = date("Y-m-d");
+        return $this->db->delete("testing",['tanggal' => $tanggal]);
+    }
+
+    public function cekTesting()
+    {
+        $post = $this->input->post();
+        $id = $post['id'];
+        $statement = "SELECT status FROM testing WHERE id='$id'";
+        $row = $this->db->query($statement)->row();
+        return $row->status;
     }
 
     public function updateStatusKirim()
     {
         $post = $this->input->post();
         $pesanId = $post['id'];
+        $this->session->set_userdata("pesanId",$pesanId);
         $timestamp = date('Y-m-d H:i:s');
         $this->db->query("UPDATE pesan set status = 'pending' WHERE status = 'proses'"); //set semua pesan menjadi pending
         // pesan yang mau dikirim dijadikan proses
@@ -83,20 +123,49 @@ class M_pesan extends CI_Model
 
     public function setStatusGagalByWarik()
     {        
-        $timestamp = date('Y-m-d H:i:s');
-        $row = $this->db->query("SELECT id FROM $this->table WHERE status = 'proses' ORDER BY updated_at DESC LIMIT 1")->row();
-        $pesanId = $row->id;
-        $this->db->query("UPDATE pesan set status = 'gagal', updated_at = '$timestamp' WHERE id=$pesanId");
-        return $this->db->affected_rows();
+        $isTesting = $this->isTesting();
+        $tanggal = date('Y-m-d');
+        if($isTesting=="ok")
+        {
+            $timestamp = date('Y-m-d H:i:s');
+            // $row = $this->db->query("SELECT id FROM $this->table WHERE status = 'proses' ORDER BY updated_at DESC LIMIT 1")->row();
+            // $pesanId = $row->id;
+            $pesanId = $this->session->userdata('pesanId');
+            $this->db->query("UPDATE pesan set status = 'gagal', updated_at = '$timestamp' WHERE id=$pesanId");
+            return $this->db->affected_rows();
+        }
+        else
+        {
+            $this->db->query("UPDATE testing SET status = 'error' WHERE tanggal = '$tanggal'");
+            return $this->db->affected_rows();
+        }
     
     }
     public function setStatusTerkirim()
     {        
-        $row = $this->db->query("SELECT id FROM $this->table WHERE status = 'proses' ORDER BY updated_at DESC LIMIT 1")->row();
-        $pesanId = $row->id;
-        $timestamp = date('Y-m-d H:i:s');
-        $this->db->query("UPDATE pesan set status = 'terkirim', updated_at = '$timestamp' WHERE id=$pesanId");
-        return $this->db->affected_rows();
+        $isTesting = $this->isTesting();
+        $tanggal = date('Y-m-d');
+        if($isTesting=="ok")
+        {
+            // $row = $this->db->query("SELECT id FROM $this->table WHERE status = 'proses' ORDER BY updated_at DESC LIMIT 1")->row();
+            // $pesanId = $row->id;
+            $pesanId = $this->session->userdata('pesanId');
+            $timestamp = date('Y-m-d H:i:s');
+            $this->db->query("UPDATE pesan set status = 'terkirim', updated_at = '$timestamp' WHERE id=$pesanId");
+            return $this->db->affected_rows();
+        }       
+        else
+        {
+            $this->db->query("UPDATE testing SET status = 'ok' WHERE tanggal = '$tanggal'");
+            return $this->db->affected_rows();
+        }
+    }
+
+    public function isTesting()
+    {
+        $tanggal = date('Y-m-d');
+        $row = $this->db->query("SELECT status FROM testing WHERE tanggal = '$tanggal'")->row();
+        return $row->status;
     }
 }
 

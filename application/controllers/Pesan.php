@@ -60,9 +60,14 @@ class Pesan extends CI_Controller
         echo json_encode($this->M_pesan->insertTesting());
     }
 
-    public function cekStatusTesting()
+    public function testingLagi()
     {
-        echo json_encode($this->M_pesan->cekStatusTesting());
+        $this->M_pesan->testingLagi();
+    }
+
+    public function cekTesting()
+    {
+        echo $this->M_pesan->cekTesting();
     }
 
     public function getAll()
