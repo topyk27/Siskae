@@ -69,25 +69,13 @@
                 <div class="card-body">
                   <form class="form-inline mb-3">
                     <div class="form-check form-check-inline">
-                      <input type="checkbox" class="form-check-input" id="cbPending">
-                      <label for="cbPending" class="form-check-label">Pending</label>
+                      <label for="status" class="form-check-label mr-2">Status Pesan</label>
+                      <select name="selectStatus" id="selectStatus" class="form-inline"></select>
                     </div>
                     <div class="form-check form-check-inline">
-                      <input type="checkbox" class="form-check-input" id="cbGagal">
-                      <label for="cbGagal" class="form-check-label">Gagal</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input type="checkbox" class="form-check-input" id="cbTerkirim">
-                      <label for="cbTerkirim" class="form-check-label">Terkirim</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input type="checkbox" class="form-check-input" id="cbSK">
-                      <label for="cbSK" class="form-check-label">Surat Keputusan</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input type="checkbox" class="form-check-input" id="cbST">
-                      <label for="cbST" class="form-check-label">Surat Tugas</label>
-                    </div>
+                      <label for="jenis" class="form-check-label mr-2">Jenis Surat</label>
+                      <select name="selectJenis" id="selectJenis" class="form-inline"></select>
+                    </div>                    
                     <div class="form-check form-check-inline mt-2 mb-2">
                       <label for="tMulai" class="form-check-label mr-2">Tanggal Mulai :</label>
                       <input type="date" class="form-check-input" id="tMulai" value="<?php echo $mulai; ?>">
@@ -130,6 +118,7 @@
   </div>
   <!-- /.content-wrapper -->
   <?php $this->load->view("_partials/footer.php") ?>
+  <?php $this->load->view("_partials/loader.php") ?>
 
   <!-- Control Sidebar -->
   <aside class="control-sidebar control-sidebar-dark">
@@ -175,7 +164,7 @@
 <!-- Moment -->
 <script src="<?php echo base_url('asset/plugin/moment/moment-with-locales.min.js') ?>"></script>
 <script src="//cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
-<script>const base_url = "<?php echo base_url(); ?>";</script>
+<script>const base_url = "<?php echo base_url(); ?>";const mulai = "<?php echo $mulai; ?>";</script>
 <script type="text/javascript">
   let dt_pesan;
   const kirimUlang = (id) =>
@@ -280,74 +269,110 @@
       ],
       responsive : true,
       autoWidth: false,
-    });
-    
-    $("#dt_pesan tbody").on('click', 'tr .deleteButton', function(e){
-      e.preventDefault();
-      // var currentRow = $(this).closest("tr");
-      var currentRow = $(this).parents("tr");
-      if(currentRow.hasClass('child'))
-      {
-        currentRow = currentRow.prev();
-      }
-      var data = $("#dt_pesan").DataTable().row(currentRow).data();
-      confirmDelete(data['id'],data['judul']);      
     });    
 
-    const confirmDelete = (id,judul) =>
-    {
-      $("#hapusModal").modal('show');
-      $("#hapusModal").find('.modal-body').html('<p>Apakah anda ingin menghapus surat '+judul+'? Data ini tidak bisa dipulihkan kembali.');
-      $("#hapusModal").find('#deleteButton').attr("onclick","hapusData("+id+")");
-    }
-
-    const cbPending = document.getElementById("cbPending");    
-    const cbGagal = document.getElementById("cbGagal");
-    const cbTerkirim = document.getElementById("cbTerkirim");
-    const cbSK = document.getElementById("cbSK");
-    const cbST = document.getElementById("cbST");
+    const selectStatus = document.getElementById("selectStatus");
+    const selectJenis = document.getElementById("selectJenis");
+    let statuss = [];
+    let jeniss = [];
+    const RENDER_STATUS = "renderStatus";
+    const RENDER_JENIS = "renderJenis";    
     const tMulai = document.getElementById("tMulai");
     const tAkhir = document.getElementById("tAkhir");
     const bFilter = document.getElementById("bFilter");
     const bReset = document.getElementById("bReset");
 
-    cbPending.addEventListener('change', (event) => {
-      if(event.currentTarget.checked)
+    const getStatus = () =>
+    {
+      $.ajax({
+        type: 'GET',
+        url: base_url+'pesan/getStatus',
+        dataType: 'JSON',
+        beforeSend: function()
+        {
+          $(".loader2").show();
+        },
+        success: function(data)
+        {
+          if(data.length > 0)
+          {
+            statuss = [];
+            for(const status of data)
+            {
+              statuss.push(status);
+            }
+          }
+          document.dispatchEvent(new Event(RENDER_STATUS));
+        },
+        complete: function()
+        {
+          $(".loader2").hide();
+        }
+      });
+    }
+
+    document.addEventListener(RENDER_STATUS,function(){
+      selectStatus.innerHTML = '';
+      const opt = document.createElement('option');
+      opt.innerText = "Pilih Status Pesan";
+      opt.setAttribute('value','false');
+      selectStatus.append(opt);
+      for(const statusItem of statuss)
       {
-        cbGagal.checked = false;
-        cbTerkirim.checked = false;        
+        const opt = document.createElement('option');
+        opt.setAttribute('value',statusItem.status);
+        opt.innerText = statusItem.status;
+        selectStatus.append(opt);
       }
     });
 
-    cbGagal.addEventListener('change', (event) => {
-      if(event.currentTarget.checked)
+    getStatus();
+
+    const getJenis = () =>
+    {
+      $.ajax({
+        type: 'GET',
+        url: base_url+'pesan/getJenis',
+        dataType: 'JSON',
+        beforeSend: function()
+        {
+          $(".loader2").show();
+        },
+        success: function(data)
+        {
+          if(data.length > 0)
+          {
+            jeniss = [];
+            for(const jenis of data)
+            {
+              jeniss.push(jenis);
+            }
+          }
+          document.dispatchEvent(new Event(RENDER_JENIS));
+        },
+        complete: function()
+        {
+          $(".loader2").hide();
+        }
+      });
+    }
+
+    document.addEventListener(RENDER_JENIS, function(){
+      selectJenis.innerHTML = '';
+      const opt = document.createElement('option');
+      opt.innerText = "Pilih Jenis Surat";
+      opt.setAttribute('value','false');
+      selectJenis.append(opt);
+      for(const jenisItem of jeniss)
       {
-        cbPending.checked = false;
-        cbTerkirim.checked = false;
+        const opt = document.createElement('option');
+        opt.setAttribute('value',jenisItem.jenis);
+        opt.innerText = jenisItem.jenis;
+        selectJenis.append(opt);
       }
     });
 
-    cbTerkirim.addEventListener('change', (event) => {
-      if(event.currentTarget.checked)
-      {
-        cbPending.checked = false;
-        cbGagal.checked = false;
-      }
-    });
-
-    cbSK.addEventListener('change', (event) => {
-      if(event.currentTarget.checked)
-      {
-        cbST.checked = false;        
-      }
-    });
-
-    cbST.addEventListener('change', (event) => {
-      if(event.currentTarget.checked)
-      {
-        cbSK.checked = false;        
-      }
-    });
+    getJenis();
 
     bFilter.addEventListener('click', (event) => {
       const x = new Date(tMulai.value);
@@ -359,29 +384,8 @@
       }
       else
       {
-        let filterStatus = false;
-        let filterSurat = false;
-        if(cbPending.checked)
-        {
-          filterStatus = 'pending';
-        }
-        else if(cbGagal.checked)
-        {
-          filterStatus = 'gagal';
-        }
-        else if(cbTerkirim.checked)
-        {
-          filterStatus = 'terkirim';
-        }
-
-        if(cbSK.checked)
-        {
-          filterSurat = "Surat Keputusan";
-        }
-        else if(cbST.checked)
-        {
-          filterSurat = "Surat Tugas";
-        }
+        let filterStatus = selectStatus.value;
+        let filterSurat = selectJenis.value;
         let data = {
           status: filterStatus,
           surat: filterSurat,
@@ -403,12 +407,9 @@
     });
 
     bReset.addEventListener('click', (event) => {
-      cbPending.checked = false;
-      cbGagal.checked = false;
-      cbTerkirim.checked = false;
-      cbSK.checked = false;
-      cbST.checked = false;
-      tMulai.valueAsDate = new Date();
+      selectStatus.value = 'false';
+      selectJenis.value = 'false';
+      tMulai.value = mulai;
       tAkhir.valueAsDate = new Date();
       dt_pesan.ajax.url(base_url+'pesan/getAll').load();
     });

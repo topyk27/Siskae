@@ -61,9 +61,12 @@
                     <div class="form-group">
                         <label for="jenis">Jenis Surat</label>
                         <select name="jenis" id="jenis" class="form-control <?php echo form_error('jenis') ? 'is-invalid' : ''; ?>" required>                        
-                            <option value="Surat Keputusan" <?php echo set_select('jenis', 'Surat Keputusan', TRUE); ?>>Surat Keputusan</option>
-                            <option value="Surat Tugas" <?php echo set_select('jenis', 'Surat Tugas'); ?>>Surat Tugas</option>
-                            <!-- <option value="Surat Lainnya" <?php echo set_select('jenis', 'Surat Lainnya'); ?>>Surat Lainnya</option> -->
+                            <option value="Surat KGB" <?php echo set_select('jenis', 'Surat KGB', TRUE); ?>>Surat KGB</option>
+                            <option value="Surat KP4" <?php echo set_select('jenis', 'Surat KP4'); ?>>Surat KP4</option>
+                            <option value="Surat Keputusan" <?php echo set_select('jenis', 'Surat Keputusan'); ?>>Surat Keputusan</option>
+                            <option value="Surat SPMMJ" <?php echo set_select('jenis', 'Surat SPMMJ'); ?>>Surat SPMMJ</option>
+                            <option value="Surat Tugas" <?php echo set_select('jenis', 'Surat Tugas'); ?>>Surat Tugas</option>                            
+                            <option value="Surat Undangan" <?php echo set_select('jenis', 'Surat Undangan'); ?>>Surat Undangan</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -192,15 +195,15 @@ $(document).ready(function(){
           type: "GET",
           dataType: "JSON",
           success: function(data)
-          {
-            if(data !== null)
+          {            
+            if(data.length > 0)
             {
               for(const grup of data)
               {
                 grups.push(grup);
               }
-              document.dispatchEvent(new Event(RENDER_GRUP));
             }
+            document.dispatchEvent(new Event(RENDER_GRUP));
           },
           error: function(err)
           {
@@ -260,8 +263,8 @@ $(document).ready(function(){
           type: "GET",
           dataType: "JSON",
           success: function(data)
-          {
-            if(data !== null)
+          {            
+            if(data.length > 0)
             {
               penerimas = [];
               for(const penerima of data)
@@ -308,7 +311,7 @@ $(document).ready(function(){
           dataType: "JSON",
           success: function(data)
           {
-            if(data != null)
+            if(data.length > 0)
             {
               penerimas = [];
               for(const penerima of data)
@@ -418,8 +421,8 @@ $(document).ready(function(){
           type: "GET",
           dataType: "JSON",
           success: function(data)
-          {
-            if(data !== null)
+          {            
+            if(data.length >0)
             {
               for(const kode of data)
               {

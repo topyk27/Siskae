@@ -59,13 +59,7 @@
           </li>
         </ul>
       </li>
-    <?php endif; ?>
-    <li class="nav-item">
-      <a href="<?php echo base_url('about'); ?>" class="nav-link" id="sidebar_about">
-        <i class="nav-icon fas fa-info-circle"></i>
-        <p>About</p>
-      </a>
-    </li>
+    <?php endif; ?>    
     <li class="nav-item">
       <a href="#" class="nav-link" onclick="modal_logout();">
         <i class="nav-icon fas fa-power-off"></i>

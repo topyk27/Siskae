@@ -90,6 +90,7 @@
 	</div>
 	<!-- /.content-wrapper -->
 	<?php $this->load->view("_partials/footer.php") ?>
+	<?php $this->load->view("_partials/loader.php") ?>
 	<!-- Control Sidebar -->
 	<aside class="control-sidebar control-sidebar-dark">
 	  <!-- Control sidebar content goes here -->
@@ -135,6 +136,10 @@
 	    $.ajax({
 	      url: "<?php echo base_url('setting/user_hapus/') ?>"+id,
 	      dataType: "text",
+		  beforeSend: function()
+		  {
+			$(".loader2").show();
+		  },
 	      success: function(respon)
 	      {
 	        if(respon==1)
@@ -150,7 +155,11 @@
 	          $("#respon").html("<div class='alert alert-warning' role='alert' id='responMsg'><strong>Maaf</strong> Data gagal dihapus. Silahkan coba lagi.</div>")
 	          $("#responMsg").hide().fadeIn(200).delay(2000).fadeOut(1000, function(){$(this).remove();});
 	        }
-	      }
+	      },
+		  complete: function()
+		  {
+			$(".loader2").hide();
+		  }
 	    });
 	  }
 	$(document).ready(function(){

@@ -59,8 +59,12 @@
                     <div class="form-group">
                         <label for="jenis">Jenis Surat</label>
                         <select name="jenis" id="jenis" class="form-control <?php echo form_error('jenis') ? 'is-invalid' : ''; ?>" required>                        
+                            <option value="Surat KGB" <?php if($surat->jenis == "Surat KGB"){ echo set_select('jenis', 'Surat KGB', TRUE);} ?>>Surat KGB</option>
+                            <option value="Surat KP4" <?php if($surat->jenis == "Surat KP4"){ echo set_select('jenis', 'Surat KP4', TRUE);} ?>>Surat KP4</option>
                             <option value="Surat Keputusan" <?php if($surat->jenis == "Surat Keputusan"){ echo set_select('jenis', 'Surat Keputusan', TRUE);} ?>>Surat Keputusan</option>
-                            <option value="Surat Tugas" <?php if($surat->jenis == "Surat Tugas"){ echo set_select('jenis', 'Surat Tugas', TRUE);} ?>>Surat Tugas</option>                            
+                            <option value="Surat SPMMJ" <?php if($surat->jenis == "Surat SPMMJ"){ echo set_select('jenis', 'Surat SPMMJ', TRUE);} ?>>Surat SPMMJ</option>
+                            <option value="Surat Tugas" <?php if($surat->jenis == "Surat Tugas"){ echo set_select('jenis', 'Surat Tugas', TRUE);} ?>>Surat Tugas</option>
+                            <option value="Surat Undangan" <?php if($surat->jenis == "Surat Undangan"){ echo set_select('jenis', 'Surat Undangan', TRUE);} ?>>Surat Undangan</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -191,7 +195,7 @@
             dataType: "JSON",
             success: function(data)
             {
-            if(data !== null)
+            if(data.length > 0)
             {
                 for(const kode of data)
                 {
@@ -230,7 +234,7 @@
             dataType: "JSON",
             success: function(data)
             {
-                if(data !== null)
+                if(data.length > 0)
                 {
                     defaultPenerimaIds = [];
                     for(const penerima of data)
@@ -264,7 +268,7 @@
           dataType: "JSON",
           success: function(data)
           {
-            if(data !== null)
+            if(data.length > 0)
             {
               penerimas = [];
               for(const penerima of data)
@@ -467,15 +471,15 @@
             dataType: "JSON",
             success: function(data)
             {
-            if(data !== null)
-            {
+              if(data.length > 0)
+              {
                 grups = [];
                 for(const grup of data)
                 {
                 grups.push(grup);
                 }
-                document.dispatchEvent(new Event(RENDER_GRUP));
-            }
+              }
+              document.dispatchEvent(new Event(RENDER_GRUP));
             },
             error: function(err)
             {
@@ -536,7 +540,7 @@
           dataType: "JSON",
           success: function(data)
           {
-            if(data != null)
+            if(data.length > 0)
             {
               penerimas = [];
               for(const penerima of data)

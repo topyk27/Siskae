@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.0.4] - 2022-12-28
+### Added
+- Jenis surat KGB, KP4, SPMMJ, Undangan
+
 ## [0.0.3] - 2022-12-27
 ### Added
 - Kirim ulang pesan yang gagal

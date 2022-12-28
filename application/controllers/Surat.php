@@ -24,6 +24,16 @@ class Surat extends CI_Controller
         echo json_encode($data);
     }
 
+    public function getJenis()
+    {
+        echo json_encode($this->M_surat->getJenis());
+    }
+
+    public function getKode()
+    {
+        echo json_encode($this->M_surat->getKode());
+    }
+
     public function tambah()
     {
         $surat = $this->M_surat;
@@ -62,6 +72,7 @@ class Surat extends CI_Controller
             if($validation->run())
             {
                 $respon = $surat->ubah($id);
+                // redirect($respon);
                 if($respon == 1)
                 {
                     $this->session->set_flashdata('success', 'Data berhasil diubah');

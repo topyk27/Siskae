@@ -76,6 +76,16 @@ class Pesan extends CI_Controller
         echo json_encode($data);
     }
 
+    public function getStatus()
+    {
+        echo json_encode($this->M_pesan->getStatus());
+    }
+
+    public function getJenis()
+    {
+        echo json_encode($this->M_pesan->getJenis());
+    }
+
     public function getPesan()
     {
         $data = $this->M_pesan->getPesan();

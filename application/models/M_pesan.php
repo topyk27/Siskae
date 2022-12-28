@@ -34,6 +34,16 @@ class M_pesan extends CI_Model
         return $this->db->query("SELECT * FROM setting LIMIT 1")->result();
     }
 
+    public function getStatus()
+    {
+        return $this->db->query("SELECT DISTINCT status FROM pesan")->result();
+    }
+
+    public function getJenis()
+    {
+        return $this->db->query("SELECT DISTINCT s.jenis FROM surat s, pesan psn WHERE s.id = psn.surat_id ORDER BY s.jenis ASC")->result();
+    }
+
     public function testing()
     {        
         return $this->db->query("SELECT nama_pa, no_testing FROM setting")->result();
@@ -179,11 +189,15 @@ class M_pesan extends CI_Model
 
     public function filter($status,$surat,$mulai,$akhir)
     {
+        if($status != 'false')
+        {
+            $status = str_replace('%20', ' ', $status);
+        }
         if($surat != 'false')
         {
             $surat = str_replace('%20', ' ', $surat);
         }
-        $qStatus = ($status == 'false') ? false : "AND psn.status = '$status' ";
+        $qStatus = ($status == 'false') ? false : "AND psn.status = '$status' ";        
         $qSurat = ($surat == 'false') ? false : "AND s.jenis = '$surat' ";
         $mulai .= ' 00.00.00.000';
         $akhir .= ' 23:59:59.999';

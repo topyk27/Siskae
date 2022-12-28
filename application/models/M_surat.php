@@ -75,6 +75,16 @@ class M_surat extends CI_Model
 		return $this->db->get()->result();		
 	}
 
+    public function getJenis()
+    {
+        return $this->db->query("SELECT DISTINCT jenis FROM surat")->result();
+    }
+
+    public function getKode()
+    {
+        return $this->db->query("SELECT DISTINCT kode FROM surat")->result();
+    }
+
     public function getById($id)
     {
         return $this->db->get_where($this->table,["id" => $id])->row();
@@ -124,7 +134,7 @@ class M_surat extends CI_Model
         $no_surat = $post['no_surat'];
         $kode = $post['kode'];
         $judul = $post['judul'];
-        $jenis = $post['jenis'];
+        $jenis = $post['jenis'];        
         $tmp_nama_penerimas = "<ol>";
         foreach($post['nama_penerimas'] as $item)
         {
@@ -142,6 +152,7 @@ class M_surat extends CI_Model
             'no_surat' => $no_surat,
             'kode' => $kode,
             'judul' => $judul,
+            'jenis' => $jenis,
             'nama_penerima' => $nama_penerima,
             'tanggal' => $tanggal,
             'link' => $link,
@@ -199,7 +210,7 @@ class M_surat extends CI_Model
     {
         $query = $this->db->query("SELECT no_hp FROM penerima WHERE id=$penerimaId")->row();
         $no_hp = $this->_nomor_hp_indo($query->no_hp);
-        $surat = ($jenis=="Surat Lainnya") ? "Surat" : $jenis;
+        $surat = $jenis;
         $pesan = "Anda mendapatkan ".$surat."%0a".$judul."%0a"."Untuk melihat isi surat silahkan buka melalui tautan berikut:%0a".$link;
         $data = array(
             'penerima_id' => $penerimaId,
@@ -245,7 +256,14 @@ class M_surat extends CI_Model
         }
         if($qSurat != false)
         {
-            $tambahan .= $qSurat;
+            if($qKode != false)
+            {
+                $tambahan .= $qSurat;
+            }
+            else
+            {
+                $tambahan .= "jenis = '$surat' ";
+            }
         }
         if(!$qKode && !$qSurat)
         {

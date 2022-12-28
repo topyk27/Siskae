@@ -73,13 +73,9 @@
                       <select name="selectKode" id="selectKode" class="form-inline"></select>
                     </div>
                     <div class="form-check form-check-inline">
-                      <input type="checkbox" class="form-check-input" id="cbSK">
-                      <label for="cbSK" class="form-check-label">Surat Keputusan</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input type="checkbox" class="form-check-input" id="cbST">
-                      <label for="cbST" class="form-check-label">Surat Tugas</label>
-                    </div>
+                      <label for="jenis" class="form-check-label mr-2">Jenis Surat</label>
+                      <select name="selectJenis" id="selectJenis" class="form-inline"></select>
+                    </div>                    
                     <div class="form-check form-check-inline mt-2 mb-2">
                       <label for="tMulai" class="form-check-label mr-2">Tanggal Mulai :</label>
                       <input type="date" class="form-check-input" id="tMulai" value="<?php echo $mulai; ?>">
@@ -126,6 +122,7 @@
   </div>
   <!-- /.content-wrapper -->
   <?php $this->load->view("_partials/footer.php") ?>
+  <?php $this->load->view("_partials/loader.php") ?>
 
   <!-- Control Sidebar -->
   <aside class="control-sidebar control-sidebar-dark">
@@ -171,30 +168,9 @@
 <!-- Moment -->
 <script src="<?php echo base_url('asset/plugin/moment/moment-with-locales.min.js') ?>"></script>
 <script src="//cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
-<script>const base_url = "<?php echo base_url(); ?>";</script>
+<script>const base_url = "<?php echo base_url(); ?>"; const mulai = "<?php echo $mulai; ?>";</script>
 <script type="text/javascript">
-  let dt_surat;
-  const hapusData = (id) =>
-  {
-    $.ajax({
-      url: base_url+"surat/hapus/"+id,
-      dataType: "TEXT",
-      success: function(respon)
-      {
-        if(respon=="1")
-        {
-          dt_surat.ajax.reload(null,false);
-          $("#respon").html("<div class='alert alert-success' role='alert' id='responMsg'><strong>Selamat</strong> Data berhasil dihapus</div>")
-          $("#responMsg").hide().fadeIn(200).delay(2000).fadeOut(1000, function(){$(this).remove();});
-        }
-        else
-        {
-          $("#respon").html("<div class='alert alert-warning' role='alert' id='responMsg'><strong>Maaf</strong> Data gagal dihapus. Silahkan coba lagi.</div>")
-          $("#responMsg").hide().fadeIn(200).delay(2000).fadeOut(1000, function(){$(this).remove();});
-        }
-      }
-    });
-  }
+  let dt_surat;  
   $(document).ready(function(){
     $("#sidebar_surat").addClass("active");    
     moment.locale('id');
@@ -272,29 +248,69 @@
     {
       $("#hapusModal").modal('show');
       $("#hapusModal").find('.modal-body').html('<p>Apakah anda ingin menghapus surat '+judul+'? Data ini tidak bisa dipulihkan kembali.');
-      $("#hapusModal").find('#deleteButton').attr("onclick","hapusData("+id+")");
+      // $("#hapusModal").find('#deleteButton').attr("onclick","hapusData("+id+")");      
+      // $("#hapusModal").find('#deleteButton').on('click',hapusData(id));
+      delBtn.id = id;
     }
 
+    const hapusData = (event) =>
+    {
+      const id = event.currentTarget.id;      
+      $.ajax({
+        url: base_url+"surat/hapus/"+id,
+        dataType: "TEXT",
+        beforeSend: function()
+        {
+          $(".loader2").show();
+        },
+        success: function(respon)
+        {
+          if(respon=="1")
+          {
+            dt_surat.ajax.reload(null,false);
+            $("#respon").html("<div class='alert alert-success' role='alert' id='responMsg'><strong>Selamat</strong> Data berhasil dihapus</div>")
+            $("#responMsg").hide().fadeIn(200).delay(2000).fadeOut(1000, function(){$(this).remove();});
+            getKode();
+            getJenis();
+          }
+          else
+          {
+            $("#respon").html("<div class='alert alert-warning' role='alert' id='responMsg'><strong>Maaf</strong> Data gagal dihapus. Silahkan coba lagi.</div>")
+            $("#responMsg").hide().fadeIn(200).delay(2000).fadeOut(1000, function(){$(this).remove();});
+          }
+        },
+        complete: function()
+        {
+          $(".loader2").hide();
+        }
+      });
+    }
+
+    const delBtn = document.getElementById('deleteButton');
+    delBtn.addEventListener('click', hapusData);
+
     const selectKode = document.getElementById('selectKode');
-    const cbSK = document.getElementById("cbSK");
-    const cbST = document.getElementById("cbST");
+    const selectJenis = document.getElementById('selectJenis');    
     const tMulai = document.getElementById("tMulai");
     const tAkhir = document.getElementById("tAkhir");
     const bFilter = document.getElementById("bFilter");
     const bReset = document.getElementById("bReset");
     let kodes = [];
     const RENDER_KODE = "renderKode";
+    let jeniss = [];
+    const RENDER_JENIS = "renderJenis";
 
     const getKode = () =>
     {
       $.ajax({
-        url: base_url+"kode/getAll",
+        url: base_url+"surat/getKode",
         type: "GET",
         dataType: "JSON",
         success: function(data)
         {
-          if(data !== null)
+          if(data.length > 0)
           {
+            kodes = [];
             for(const kode of data)
             {
               kodes.push(kode);
@@ -306,6 +322,7 @@
     }
 
     document.addEventListener(RENDER_KODE,function(){
+      selectKode.innerHTML = "";
       const opt = document.createElement('option');
       opt.innerText = "Pilih Kode Surat";
       opt.setAttribute('value','false');
@@ -320,20 +337,44 @@
     });
 
     getKode();
-    
-    cbSK.addEventListener('change', (event) => {
-      if(event.currentTarget.checked)
+
+    const getJenis = () => 
+    {
+      $.ajax({
+        url: base_url+'surat/getJenis',
+        type: 'GET',
+        dataType: 'JSON',
+        success: function(data)
+        {          
+          if(data.length > 0)
+          {
+            jeniss = [];
+            for(const jenis of data)
+            {
+              jeniss.push(jenis);
+            }
+          }
+          document.dispatchEvent(new Event(RENDER_JENIS));
+        }
+      });
+    }
+
+    document.addEventListener(RENDER_JENIS, function(){      
+      selectJenis.innerHTML = "";
+      const opt = document.createElement('option');
+      opt.innerText = "Pilih Jenis Surat";
+      opt.setAttribute('value','false');
+      selectJenis.append(opt);
+      for(const jenisItem of jeniss)
       {
-        cbST.checked = false;        
+        const opt = document.createElement('option');
+        opt.setAttribute('value',jenisItem.jenis);
+        opt.innerText = jenisItem.jenis;
+        selectJenis.append(opt);
       }
     });
 
-    cbST.addEventListener('change', (event) => {
-      if(event.currentTarget.checked)
-      {
-        cbSK.checked = false;        
-      }
-    });
+    getJenis();    
 
     bFilter.addEventListener('click', (event) => {
       const x = new Date(tMulai.value);
@@ -346,16 +387,7 @@
       else
       {        
         let filterKode = selectKode.value;
-        let filterSurat = false;        
-
-        if(cbSK.checked)
-        {
-          filterSurat = "Surat Keputusan";
-        }
-        else if(cbST.checked)
-        {
-          filterSurat = "Surat Tugas";
-        }
+        let filterSurat = selectJenis.value;
         let data = {
           kode: filterKode,
           surat: filterSurat,
@@ -374,10 +406,9 @@
     });
 
     bReset.addEventListener('click', (event) => {      
-      cbSK.checked = false;
-      cbST.checked = false;
       selectKode.value = 'false';
-      tMulai.valueAsDate = new Date();
+      selectJenis.value = 'false';
+      tMulai.value = mulai;
       tAkhir.valueAsDate = new Date();
       dt_surat.ajax.url(base_url+'surat/getAll').load();
     });

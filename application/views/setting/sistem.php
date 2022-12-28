@@ -135,6 +135,7 @@
 		</section>
 	</div>
 	<?php $this->load->view("_partials/footer.php") ?>
+	<?php $this->load->view("_partials/loader.php") ?>
 	<aside class="control-sidebar control-sidebar-dark"></aside>
 </div>
 <!-- jQuery -->
@@ -159,6 +160,10 @@
 				url: "<?php echo base_url('setting/ketua_save'); ?>",
 				data: {ketua: $("input[name='ketua']").val() + "#" + $("input[name='nip_ketua']").val() },
 				dataType: 'json',
+				beforeSend: function()
+				{
+					$(".loader2").show();
+				},
 				success: function(data)
 				{
 					if(data.respon)
@@ -182,7 +187,10 @@
 					$("#respon").html("<div class='alert alert-warning' role='alert' id='responMsg'>Data gagal diubah. Silahkan coba lagi.</div>")
 					$("#responMsg").hide().fadeIn(200).delay(2000).fadeOut(1000, function(){$(this).remove();});
 				},
-
+				complete: function()
+				{
+					$(".loader2").hide();
+				}
 			});
 		});
 
@@ -197,6 +205,10 @@
 				url: "<?php echo base_url('setting/panitera_save'); ?>",
 				data: {panitera: $("input[name='panitera']").val() + "#" + $("input[name='nip_panitera']").val()},
 				dataType: 'json',
+				beforeSend: function()
+				{
+					$(".loader2").show();
+				},
 				success: function(data)
 				{
 					if(data.respon)
@@ -220,7 +232,10 @@
 					$("#respon").html("<div class='alert alert-warning' role='alert' id='responMsg'>Data gagal diubah. Silahkan coba lagi.</div>")
 					$("#responMsg").hide().fadeIn(200).delay(2000).fadeOut(1000, function(){$(this).remove();});
 				},
-
+				complete: function()
+				{
+					$(".loader2").hide();
+				}
 			});
 		});
 
@@ -236,6 +251,10 @@
 				url: base_url+"setting/kode_surat_satker_save",
 				data: {kode_surat_satker : $("input[name='kode_surat_satker']").val()},
 				dataType: "JSON",
+				beforeSend: function()
+				{
+					$(".loader2").show();
+				},
 				success: function(data)
 				{
 					if(data.respon)
@@ -258,6 +277,10 @@
 					console.log(err);
 					$("#respon").html("<div class='alert alert-warning' role='alert' id='responMsg'>Data gagal diubah. Silahkan coba lagi.</div>")
 					$("#responMsg").hide().fadeIn(200).delay(2000).fadeOut(1000, function(){$(this).remove();});
+				},
+				complete: function()
+				{
+					$(".loader2").hide();
 				}
 			});
 		});
